@@ -72,36 +72,13 @@ val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shu
 
 # create the model
 
+
+
 device = torch.device("cuda")
 
-
-
-class BasicCNN(nn.Module):
-    def __init__(self, num_classes):
-        super(BasicCNN, self).__init__()
-        self.model = nn.Sequential(
-            nn.Conv2d(3, 8, kernel_size=3, padding=1),
-            nn.ReLU(),
-            nn.MaxPool2d(2),
-            nn.Conv2d(8, 16, kernel_size=3, padding=1),
-            nn.ReLU(),
-            nn.MaxPool2d(2),
-            nn.Conv2d(16, 32, kernel_size=3, padding=1),
-            nn.ReLU(),
-            nn.MaxPool2d(2),
-            nn.Flatten(),
-            nn.Linear(32 * 15 * 15, 32),
-            nn.ReLU(),
-            nn.Linear(32, num_classes),
-        )
-
-    def forward(self, x):
-        return self.model(x)
+from model import BasicCNN
 
 model = BasicCNN(num_classes=4)
-model = model.to(device)
-
-
 model = model.to(device)
 
 criterion = nn.CrossEntropyLoss()
