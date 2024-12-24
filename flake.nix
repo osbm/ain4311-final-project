@@ -1,5 +1,5 @@
 {
-  description = "Development Shell For this repository";
+  description = "Development Shell For AIN4311 Project";
 
   nixConfig = {
     extra-substituters = [
@@ -23,11 +23,31 @@
         config.allowUnfree = true;
         config.cudaSupport = true;
       };
+      esp-ppq = pkgs.python3Packages.buildPythonPackage {
+        pname = "esp-ppq";
+        version = "v0.0.1";
+
+        src = pkgs.fetchFromGitHub {
+          owner = "espressif";
+          repo = "esp-ppq";
+          rev = "1db3d37829bda158909cafec3d9153226f908d59";
+          sha256 = "sha256-LPTMS4F2oKbcWe3rejw+lkl9Yopg1vMXTYl6K/mgdQk=";
+        };
+        PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION="python";
+        propagatedBuildInputs = with pkgs.python3Packages; [
+          numpy
+          torchWithCuda
+          protobuf
+          onnx
+          tqdm
+        ];
+      };
+
     in
     {
       devShells."${system}".default = pkgs.mkShell {
         packages = with pkgs; [
-          (python312.withPackages (ppkgs: with python312Packages; [ # this gives collision errors
+          (python312.withPackages (ppkgs: with python312Packages; [
             torchWithCuda
             ipython
             numpy
@@ -35,14 +55,17 @@
             seaborn
             matplotlib
             torchvision
+            datasets
             scikit-learn
             jupyter
             notebook
+            esp-ppq
           ]))
-          # python312Packages.venvShellHook
         ];
         shellHook = ''
-          echo 'Welcome to the ai development.'
+          echo 'Welcome to the nix development shell.'
+          echo "You are using this shell: $SHELL"
+          echo "You are using this python: $(which python)"
         '';
       };
     };
