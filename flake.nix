@@ -42,7 +42,38 @@
           tqdm
         ];
       };
+      # onnxsim = pkgs.python3Packages.buildPythonPackage {
+      #   pname = "onnxsim";
+      #   version = "v0.4.36";
 
+
+      #   buildInputs = with pkgs; [
+      #     cmake
+      #   ];
+      #   propagatedBuildInputs = with pkgs.python3Packages; [
+
+      #   ];
+      # };
+      onnxsim = pkgs.python3Packages.buildPythonPackage {
+        pname = "onnxsim";
+        version = "0.4.36";
+        src = pkgs.fetchFromGitHub {
+          owner = "osbm";
+          repo = "onnx-simplifier";
+          rev = "v0.4.36";
+          fetchSubmodules = true;
+          sha256 = "sha256-quuTuMlHyMCw7fgDm0MwnFPXq4RJ2zUZJTwNc0chUh4=";
+        };
+        propagatedBuildInputs = with pkgs.python3Packages; [
+          numpy
+        ];
+
+        nativeBuildInputs = with pkgs; [
+          cmake
+          abseil-cpp
+          python3Packages.setuptools
+        ];
+      };
     in
     {
       devShells."${system}".default = pkgs.mkShell {
@@ -60,12 +91,16 @@
             jupyter
             notebook
             esp-ppq
+            flatbuffers
+            # onnxsim
           ]))
         ];
+
         shellHook = ''
           echo 'Welcome to the nix development shell.'
           echo "You are using this shell: $SHELL"
           echo "You are using this python: $(which python)"
+          export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
         '';
       };
     };

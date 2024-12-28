@@ -1,4 +1,5 @@
 data/
 best-model.pth
-history.csv
-pretraining-history.png
+
+*.pyc
+*.pth
