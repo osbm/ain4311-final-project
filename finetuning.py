@@ -20,7 +20,6 @@ import random
 import uuid
 
 
-
 val_transform = transforms.Compose([
     transforms.Resize((120, 120)),
     transforms.ToTensor()
@@ -35,8 +34,8 @@ train_transform = transforms.Compose([
     transforms.ToTensor()
 ])
 
-train_dataset = torchvision.datasets.ImageFolder("data/pretraining_train", transform=train_transform)
-val_dataset = torchvision.datasets.ImageFolder("data/pretraining_val", transform=val_transform)
+train_dataset = torchvision.datasets.ImageFolder("data/finetuning_train", transform=train_transform)
+val_dataset = torchvision.datasets.ImageFolder("data/finetuning_val", transform=val_transform)
 
 batch_size = 64
 train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
@@ -44,8 +43,6 @@ val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shu
 
 
 # create the model
-
-
 
 device = torch.device("cuda")
 
@@ -55,7 +52,7 @@ model = BasicCNN(num_classes=4)
 model = model.to(device)
 
 criterion = nn.CrossEntropyLoss()
-optimizer = torch.optim.Adam(model.parameters(), lr=0.0001)
+optimizer = torch.optim.Adam(model.parameters(), lr=0.00001)
 
 
 # print number of parameters and amount of memory needed according to weight dtypes
@@ -64,6 +61,8 @@ memory = sum(p.numel() * p.element_size() for p in model.parameters())
 
 print(f"Model has {num_params} parameters")
 print(f"Model uses {memory/1024**2:.2f} MB of memory")
+
+model.load_state_dict(torch.load("best-pretraining-model.pth"))
 
 
 history = {
@@ -106,7 +105,7 @@ for epoch_idx in range(num_epocs):
     if f1 > best_f1:
         best_f1 = f1
         print(f"Better model found with f1: {f1}")
-        torch.save(model.state_dict(), "best-pretraining-model.pth")
+        torch.save(model.state_dict(), "best-finetuning-model.pth")
     # confusion matrix just prints the confusion matrix
     cm = confusion_matrix(all_labels, all_preds)
 
@@ -117,6 +116,6 @@ for epoch_idx in range(num_epocs):
 
     history_df = pd.DataFrame(history)
     history_df.plot()
-    plt.savefig("pretraining-history.png")
-    history_df.to_csv("pretraining-history.csv", index=False)
+    plt.savefig("finetuning-history.png")
+    history_df.to_csv("finetuning-history.csv", index=False)
 
