@@ -28,18 +28,54 @@ calibration_transform = transforms.Compose([
 
 calibration_dataset = torchvision.datasets.ImageFolder("data/finetuning_train", transform=calibration_transform)
 
-def run_calibration(model, calibration_dataset):
 
-    # Set the model to the evaluation
+
+
+# Calibration function to compute min and max for activations
+def calibrate_model(model, data_loader):
+    layer_stats = {}
     model.eval()
+    with torch.no_grad():
+        for data, _ in data_loader:
+            x = data
+            for name, layer in model.named_children():
+                x = layer(x)
+                if isinstance(layer, (nn.Conv2d, nn.Linear)):  # Quantize these layers
+                    layer_stats[name] = {
+                        'min': x.min(),
+                        'max': x.max()
+                    }
+    return layer_stats
 
-    for image, _ in tqdm(calibration_dataset):
-        image = image.unsqueeze(0)
-        model(image)
+# Helper function to quantize a tensor to int8
+def quantize_tensor(tensor, scale, bitwidth=8):
+    quantized = torch.round(tensor / scale).clamp(-2**(bitwidth - 1), 2**(bitwidth - 1) - 1)
+    return quantized.to(torch.int8)
 
+# Quantization loop using calibration dataset
+def quantize_model(model, data_loader):
+    # First, gather statistics using the calibration dataset
+    layer_stats = calibrate_model(model, data_loader)
 
+    # Quantize model layers using the calibration statistics
+    for name, param in model.named_parameters():
+        if isinstance(param, torch.nn.Parameter):
+            # Match the layer name to the stats and apply quantization
+            for layer_name, stats in layer_stats.items():
+                if layer_name in name:  # Match layer name
+                    # Compute scale for quantization (based on max value)
+                    scale = stats['max'] / (2**7 - 1)
 
+                    # Quantize the weights of the parameter
+                    quantized_weights = quantize_tensor(param.data, scale)
 
+                    # Update the parameter with the quantized weights
+                    param.data.copy_(quantized_weights)  # In-place update using copy_
+
+                    # Optionally, store the scale for later dequantization (during inference)
+                    param.scale = scale
+
+    return model
 
 def print_size_of_model(model):
     # print number of parameters and number of bytes
@@ -56,9 +92,11 @@ def main():
     print_size_of_model(model)
 
     # Quantize the model by just
-    quantized_model = torch.quantization.quantize(
-        model, run_fn=run_calibration, run_args=[calibration_dataset]
-    )
+    data_loader = torch.utils.data.DataLoader(calibration_dataset, batch_size=64, shuffle=True)
+    quantized_model = quantize_model(model, data_loader)
+
+
+
     print_size_of_model(quantized_model)
     print(quantized_model)
 
@@ -98,10 +136,25 @@ def main():
             print("Quantized weights:", module.weight())
             print("Weight dtype:", module.weight().dtype)
 
+
+
     # export model to onnx
 
     dummy_input = torch.randn(1, 3, 120, 120)
     torch.onnx.export(quantized_model, dummy_input, "best-finetuning-model-quantized.onnx")
+
+
+
+    # save all the weights and biases of the model
+    # in a text file as a list of numbers
+
+    with open("best-finetuning-model-quantized.txt", "w") as f:
+        for name, param in quantized_model.named_parameters():
+            f.write(f"{name}\n")
+            f.write(f"{param.size()}\n")
+            f.write(f"{param.flatten().tolist()}\n")
+
+
 
     # Save the quantized model
     torch.save(quantized_model.state_dict(), 'best-finetuning-model-quantized.pth')
