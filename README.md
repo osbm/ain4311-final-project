@@ -3,7 +3,7 @@
 
 ## Project Description
 
-
+This study presents a comprehensive approach to developing an AI-driven image classification system on the ESP32-CAM platform. The project leverages the device's small form factor, integrated camera, and Wi-Fi connectivity to enable real-time image acquisition and processing. Using lightweight convolutional neural networks (CNNs), the system is optimized through techniques such as model quantization, pruning, and transfer learning to meet the computational and memory limitations of the ESP32-CAM. The methodology includes preprocessing data to match hardware specifications, deploying TensorFlow Lite models, and utilizing efficient training workflows to adapt to the device's constraints. The outcomes demonstrate a balance between high efficiency and cost-effectiveness, emphasizing advantages such as low power consumption, ease of integration, and suitability for IoT applications. Despite challenges like camera quality, CPU clock speed, and heat dissipation, the project highlights the potential of the ESP32-CAM in deploying AI at the edge, offering insights into practical implementations in surveillance, environmental monitoring, and smart devices.
 
 ## Installation
 
