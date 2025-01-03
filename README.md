@@ -82,16 +82,50 @@ To get the quantization code, you can run the following command:
 $ python quantizer.py
 ```
 
+After that, you need to convert the quantized model to a tflite model. You can run the following command:
+
+```bash
+$ python onnx-to-tf.py
+$ python tf-to-tflite.py
+```
+
+Now that we have the tflite model, we need  to convert it to a C header file. You can run the following command:
+
+```bash
+$ xxd -i model.tflite > model.h
+```
+
 
 ### Arduino Codes
 
-There is two different ardunio photo taker code bases for our project.
+There is two main photo taker algorithms we used.
 
 #### Telegram photo taker
 
+You can find in `arduino/photo-collecter` directory. Keep in mind that you will need to edit this code with your own telegram bot token and chat id and also the wifi credentials.
 
+Required libraries:
+- ArduinoJson
+- UniversalTelegramBot
+- esp32-camera
 
-#### ESP32-CAM web server photo taker
+#### Web server photo taker
 
+You can find the code for this in the `arduino/web-server` directory. Keep in mind that you will need to edit this code with your own wifi credentials and also telegram bot token and chat id. We needed telegram because when we used android mobile hotspot there is no way to get the ip address of the ESP32-CAM. So this script sends the ip address to the telegram bot.
+
+Required libraries:
+- esp32-camera
+- WiFi
+- ArduinoJson
+- UniversalTelegramBot
 
 #### Inference on the ESP32-CAM
+
+The code is inside the `arduino/inference` directory. You can find the code for the inference on the ESP32-CAM. You will also need wifi and telegram credentials but also you will need to add the model.h file to this folder.
+
+Required libraries:
+- esp32-camera
+- WiFi
+- ArduinoJson
+- UniversalTelegramBot
+- Adafruit TensorFlowLite
