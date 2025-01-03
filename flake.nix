@@ -81,6 +81,7 @@
             # esp-ppq
             flatbuffers
             # onnxsim
+            onnx
           ]))
         ];
 
