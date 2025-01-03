@@ -66,6 +66,7 @@
     {
       devShells."${system}".default = pkgs.mkShell {
         packages = with pkgs; [
+          arduino-ide
           (python312.withPackages (ppkgs: with python312Packages; [
             torchWithCuda
             ipython
