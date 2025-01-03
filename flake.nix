@@ -42,18 +42,6 @@
           tqdm
         ];
       };
-      # onnxsim = pkgs.python3Packages.buildPythonPackage {
-      #   pname = "onnxsim";
-      #   version = "v0.4.36";
-
-
-      #   buildInputs = with pkgs; [
-      #     cmake
-      #   ];
-      #   propagatedBuildInputs = with pkgs.python3Packages; [
-
-      #   ];
-      # };
       onnxsim = pkgs.python3Packages.buildPythonPackage {
         pname = "onnxsim";
         version = "0.4.36";
@@ -90,7 +78,7 @@
             scikit-learn
             jupyter
             notebook
-            esp-ppq
+            # esp-ppq
             flatbuffers
             # onnxsim
           ]))
