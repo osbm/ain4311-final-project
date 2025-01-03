@@ -67,6 +67,7 @@
       devShells."${system}".default = pkgs.mkShell {
         packages = with pkgs; [
           arduino-ide
+          unixtools.xxd
           (python312.withPackages (ppkgs: with python312Packages; [
             torchWithCuda
             ipython
@@ -83,6 +84,8 @@
             flatbuffers
             # onnxsim
             onnx
+            tensorflow
+            # onnx-tf
           ]))
         ];
 
