@@ -1,5 +1,20 @@
-data/
+# data/
+
+
+data/finetuning_train
+data/finetuning_val
+data/group1_photos
+data/group2_photos
+
+data/pretraining_train
+data/pretraining_val
+
+data/pretraining_photos
+
 best-model.pth
 
 *.pyc
 *.pth
+*.log
+*.onnx
+*.txt
