@@ -1,4 +1,4 @@
-# Our Codebase for AIN4311 project
+# AIN4311 -  Special Topics in Artificial Intelligence Engineering I Project
 
 
 ## Project Description
